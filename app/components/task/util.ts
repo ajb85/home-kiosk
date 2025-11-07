@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 import { Task } from "./types";
-
+import { isInPast, isToday } from "@/app/util/time";
+import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 
 export function getTaskDueDateString(task: Task) {
@@ -10,12 +10,11 @@ export function getTaskDueDateString(task: Task) {
 
 export function getDueDateInEnglishTime(task: Task) {
   const due = dayjs.unix(task.due);
-  const now = dayjs();
-  if (due.format("MM/DD/YYYY") === now.format("MM/DD/YYYY")) {
+  if (isToday(due)) {
     return "Today";
   }
 
-  if (due.unix() < now.unix()) {
+  if (isInPast(due)) {
     return "Past Due";
   }
 

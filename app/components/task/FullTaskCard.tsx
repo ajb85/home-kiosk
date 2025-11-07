@@ -4,12 +4,14 @@ import { getTaskDueDateString } from "./util";
 
 export function FullTaskCard({ task }: FullTaskCardProps) {
   if (!task) {
-    return (
-      <Card>
+    return null;
+    /*
+    <Card>
         <Text>No active task! Create one to view it here.</Text>
       </Card>
-    );
+      */
   }
+
   const dueString = getTaskDueDateString(task);
   return (
     <Card variant="classic">
@@ -19,9 +21,7 @@ export function FullTaskCard({ task }: FullTaskCardProps) {
         </Text>
         <Text size="1">{task.description ?? "<No Description>"}</Text>
         <Flex gap="3">
-          <Button color="green" highContrast>
-            Complete
-          </Button>
+          <Button color="green">Complete</Button>
         </Flex>
       </Flex>
     </Card>

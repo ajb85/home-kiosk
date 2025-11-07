@@ -1,24 +1,27 @@
 "use server";
 
 import { Task } from "@/app/components/task/types";
+import { areOnSameDay } from "@/app/util/time";
+import axios from "axios";
 import dayjs from "dayjs";
 
-export async function getTasks() {
-  return [
-    {
-      id: "trash",
-      title: "Take Out Trash",
-      due: dayjs().add(3, "day").unix(),
-      completed: false,
-      description: "Take out trash, recycling, and compost.",
-    },
-    {
-      id: "cooper",
-      title: "Cooper Massage",
-      completed: false,
-      due: dayjs().unix(),
-      description:
-        "Cooper's swollen limbs need a hot pack and a massage in order to help blood flow",
-    },
-  ].sort((a, b) => a.due - b.due) as Array<Task>;
+const taskMapperByTag: Record<string, (task: Task) => Task | null> = {
+  trash: (task) =>
+    areOnSameDay(dayjs().add(1, "day"), dayjs.unix(task.due)) ? task : null,
+};
+
+export async function getTasks(): Promise<Array<Task>> {
+  const tasks = await axios.get("http://localhost:4000/api/tasks");
+  return (tasks.data.tasks ?? ([] as Task[])).reduce((acc: Task[], t: Task) => {
+    if (!taskMapperByTag[t.tag]) {
+      return t;
+    }
+
+    const results = taskMapperByTag[t.tag](t);
+    if (results) {
+      acc.push(results);
+    }
+
+    return acc;
+  }, [] as Task[]);
 }
