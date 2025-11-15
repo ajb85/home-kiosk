@@ -21,3 +21,5 @@ export type TaskProviderProps = {
   initialTasks: Task[];
   children: React.ReactNode;
 };
+
+export type CreateTaskButtonProps = {};

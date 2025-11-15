@@ -12,16 +12,22 @@ const taskMapperByTag: Record<string, (task: Task) => Task | null> = {
 
 export async function getTasks(): Promise<Array<Task>> {
   const tasks = await axios.get("http://localhost:4000/api/tasks");
-  return (tasks.data.tasks ?? ([] as Task[])).reduce((acc: Task[], t: Task) => {
-    if (!taskMapperByTag[t.tag]) {
-      return t;
-    }
+  const taskList = (tasks.data.tasks ?? ([] as Task[])).reduce(
+    (acc: Task[], t: Task) => {
+      if (!taskMapperByTag[t.tag]) {
+        acc.push(t);
+        return acc;
+      }
 
-    const results = taskMapperByTag[t.tag](t);
-    if (results) {
-      acc.push(results);
-    }
+      const results = taskMapperByTag[t.tag](t);
+      if (results) {
+        acc.push(results);
+      }
 
-    return acc;
-  }, [] as Task[]);
+      return acc;
+    },
+    [] as Task[]
+  );
+
+  return taskList;
 }
